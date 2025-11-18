@@ -1,0 +1,125 @@
+:root{
+  --bg:#f6f7fb; --fg:#111; --card:#fff; --muted:#6b7280; --border:#e5e7eb;
+  --blue:#25dc28; --green:#16a34a; --yellow:#f59e0b; --red:#dc2626; --gray:#9ca3af;
+}
+
+*{ box-sizing:border-box }
+
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--fg);
+  font-family:system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+}
+
+header, footer{
+  background:var(--card);
+  border-bottom:1px solid var(--border);
+  padding:12px 20px;
+}
+
+main{
+  max-width:1100px;
+  margin:20px auto;
+  padding:0 12px;
+}
+
+h3, h4{ margin:0 0 8px 0 }
+small{ color:var(--muted) }
+
+/* Card mais “fechado” para não vazar conteúdo */
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:16px;
+  margin-bottom:16px;
+  overflow:hidden; /* evita canvas/linhas vazarem o raio */
+}
+
+/* Grid de campos do formulário */
+.grid{
+  display:grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap:10px;
+}
+
+/* Gráficos em grid, com respiro */
+.grid-charts{
+  display:grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap:12px;
+  padding:4px 0; /* respiro para não colar nas bordas do card */
+}
+
+/* Cada gráfico com borda e sem vazamento */
+.chart-card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:10px;
+  overflow:hidden;
+}
+
+label{ font-weight:600; display:block; margin-bottom:6px }
+
+input, select, button{
+  width:100%;
+  padding:10px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  font-size:14px;
+  max-width:100%;
+  box-sizing:border-box;
+}
+
+button{ background:var(--blue); color:#fff; cursor:pointer }
+button.secondary{ background:#4725dc; color:#ffffff }
+button.danger{ background:var(--red); color:#ffffff }
+
+.alert{ padding:10px; border-radius:8px; margin-bottom:10px }
+.alert.error{ background:#fee2e2; color:#991b1b }
+.alert.warn{ background:#fff7ed; color:#92400e }
+
+/* Envoltório para rolagem horizontal de tabelas largas */
+.table-scroll{
+  width:100%;
+  overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+}
+
+/* Tabela com respiro interno */
+.table{
+  display:grid;
+  gap:8px;
+  padding:4px 0;
+}
+
+/* Cabeçalho/linhas em grid; sem margens que empurrem para fora */
+.t-head, .t-row{
+  display:grid;
+  grid-template-columns: 70px 70px 70px 160px 130px 180px 140px 140px 170px 90px;
+  gap:8px;
+  align-items:center;
+  width:100%;
+  margin:0;
+}
+
+.t-head{ font-weight:700; color:var(--muted) }
+
+.dot{ display:inline-block; width:14px; height:14px; border-radius:50% }
+.dot.green{ background: var(--green) }
+.dot.yellow{ background: var(--yellow) }
+.dot.red{ background: var(--red) }
+.dot.gray{ background: var(--gray) }
+
+.muted{ color: var(--muted); font-size: 12px }
+
+/* Responsividade */
+@media (max-width: 1100px){
+  .grid{ grid-template-columns:1fr 1fr }
+  .t-head, .t-row{
+    grid-template-columns: 40px 60px 50px 120px 110px 160px 120px 120px 150px 80px;
+    font-size:12px;
+  }
+}

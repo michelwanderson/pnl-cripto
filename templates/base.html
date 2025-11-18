@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <title>Crypto PnL Local</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <header>
+    <h3>Calculadora de Ganho/Perda (Local)</h3>
+    <small>Taxa fixa: {{ fee_rate | round(3) }}% (deduzida da quantidade em cripto)</small>
+  </header>
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+  <footer>
+    <small>MVP Flask + Jinja + Chart.js • Auto-refresh a cada 30 min • {{ last_update }}</small>
+  </footer>
+  <script>
+    // Auto refresh a cada 5 minutos (300000 ms)
+    setInterval(() => { location.reload(); }, 1800000);
+  </script>
+</body>
+</html>

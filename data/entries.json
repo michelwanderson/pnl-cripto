@@ -1,0 +1,34 @@
+[
+  {
+    "id": 1762800663051,
+    "coin": "BTC",
+    "fiat": "BRL",
+    "valor_compra": 998.0,
+    "preco_compra": 567447.0,
+    "ts": 1762800663
+  },
+  {
+    "id": 1763212659609,
+    "coin": "BTC",
+    "fiat": "USD",
+    "valor_compra": 281.83,
+    "preco_compra": 98888.36,
+    "ts": 1763212659
+  },
+  {
+    "id": 1763466503426,
+    "coin": "BTC",
+    "fiat": "USD",
+    "valor_compra": 18.31,
+    "preco_compra": 91550.1,
+    "ts": 1763466503
+  },
+  {
+    "id": 1763467401513,
+    "coin": "BTC",
+    "fiat": "USD",
+    "valor_compra": 185.9,
+    "preco_compra": 91581.18,
+    "ts": 1763467401
+  }
+]

@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+
+{% block content %}
+  {% if error %}
+    <div class="alert error">{{ error }}</div>
+  {% endif %}
+  {% if api_error %}
+    <div class="alert warn">{{ api_error }}</div>
+  {% endif %}
+
+  <section class="card">
+    <h4>Adicionar compra</h4>
+    <form id="main-form" method="post" action="{{ url_for('index') }}">
+      <input type="hidden" name="action" value="add" />
+      <div class="grid">
+        <div>
+          <label>Moeda</label>
+          <select name="coin">
+            {% for c in supported_coins %}
+              <option value="{{ c }}">{{ c }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label>Fiat</label>
+          <select name="fiat">
+            {% for f in supported_fiat %}
+              <option value="{{ f }}">{{ f }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label>Valor da compra</label>
+          <input name="valor_compra" placeholder="Ex: 1.500,50" required />
+        </div>
+        <div>
+          <label>Preço na compra</label>
+          <input name="preco_compra" placeholder="Ex: 350.000,00" required />
+        </div>
+      </div>
+      <div style="display:flex; gap:8px; margin-top:12px;">
+        <button type="submit">Salvar compra</button>
+    </form>
+    <a href="{{ url_for('index') }}" class="button secondary">Atualizar</a>
+  </div>
+  </form>
+
+  </section>
+
+  <section class="card">
+    <h4>Minhas compras</h4>
+      <div class="table">
+        <div class="t-head">
+          <div>Semáforo</div>
+          <div>Par</div>
+          <div>Valores (Investido / Atual)</div>
+          <div>Preços (Compra / Atual)</div>
+          <div>Qtd Líquida</div>
+          <div>Lucro/Prejuízo (PnL)</div>
+          <div>Ações</div>
+        </div>
+        {% for r in rows %}
+          {% set e = r.entry %}
+          {% set m = r.metrics %}
+          <div class="t-row">
+            <div>
+              {% if m.status == 'green' %}
+                <span class="dot green" title="Ganho > 2%"></span>
+              {% elif m.status == 'yellow' %}
+                <span class="dot yellow" title="-2% a 2%"></span>
+              {% elif m.status == 'red' %}
+                <span class="dot red" title="Perda < -2%"></span>
+              {% else %}
+                <span class="dot gray" title="Sem preço"></span>
+              {% endif %}
+            </div>
+            <div><strong>{{ e.coin }}/{{ e.fiat }}</strong></div>
+            <div>
+              {% if m.invested is not none %}
+                <div>{{ "{:.2f}".format(m.invested) }} {{ e.fiat }}</div>
+                <div class="muted">↳ {{ "{:.2f}".format(m.current_value) }} {{ e.fiat }}</div>
+              {% else %} — {% endif %}
+            </div>
+            <div>
+              {% if r.current_price is not none %}
+                <div>{{ "{:.6f}".format(e.preco_compra) }} {{ e.fiat }}</div>
+                <div class="muted">↳ {{ "{:.6f}".format(r.current_price) }} {{ e.fiat }}</div>
+              {% else %} 
+                <div>{{ "{:.6f}".format(e.preco_compra) }} {{ e.fiat }}</div>
+                <div class="muted" style="color: red;">↳ Erro de API</div>
+              {% endif %}
+            </div>
+            <div title="Bruta: {{ '{:.8f}'.format(m.gross_qty) if m.gross_qty else 'N/A' }} | Taxa: {{ '{:.8f}'.format(m.fee_qty) if m.fee_qty else 'N/A' }}">
+              {% if m.qty is not none %}
+                <strong>{{ "{:.8f}".format(m.qty) }}</strong>
+              {% else %} — {% endif %}
+            </div>
+            <div>
+              {% if m.pnl is not none %}
+                <span>{{ "{:.2f}".format(m.pnl) }} {{ e.fiat }}</span>
+                <span class="muted">({{ "{:.2f}".format(m.pnl_pct) }}%)</span>
+              {% else %} — {% endif %}
+            </div>
+            <div>
+              <form method="post" onsubmit="return confirm('Excluir esta compra?')">
+                <input type="hidden" name="action" value="delete" />
+                <input type="hidden" name="id" value="{{ e.id }}" />
+                <button type="submit" class="danger">Excluir</button>
+              </form>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+  </section>
+
+  <section class="card">
+    <h4>Gráficos de preço (últimas leituras)</h4>
+    <div class="grid-charts">
+      {% for key, series in chart_series.items() %}
+        <div class="chart-card">
+          <canvas id="chart_{{ key }}"></canvas>
+          <small>{{ key }}</small>
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <script>
+    const chartSeries = {{ chart_series | tojson }};
+    let colors = {
+      "BTC_BRL": "rgba(37,99,235,0.8)",
+      "BTC_USD": "rgba(16,185,129,0.8)",
+      "ETH_BRL": "rgba(234,88,12,0.8)",
+      "ETH_USD": "rgba(147,51,234,0.8)"
+    };
+
+    // Função para gerar cores aleatórias para novos gráficos
+    function getRandomColor() {
+      const r = Math.floor(Math.random() * 255);
+      const g = Math.floor(Math.random() * 255);
+      const b = Math.floor(Math.random() * 255);
+      return `rgba(${r},${g},${b},0.8)`;
+    }
+
+    for (const key in chartSeries) {
+      const ctx = document.getElementById('chart_' + key);
+      if (!ctx) continue;
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: chartSeries[key].labels,
+          datasets: [{
+            label: key,
+            data: chartSeries[key].data,
+            borderColor: colors[key] || (() => {
+              colors[key] = getRandomColor();
+              return colors[key];
+            })(),
+            backgroundColor: 'rgba(0,0,0,0)',
+            borderWidth: 2,
+            tension: 0.25,
+            pointRadius: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } },
+          scales: { x: { display: true }, y: { display: true } }
+        }
+      });
+    }
+  </script>
+{% endblock %}
+
+<script>
+  document.getElementById("main-form").addEventListener("submit", function(event) {
+    var valorCompraInput = document.querySelector('input[name="valor_compra"]');
+    var precoCompraInput = document.querySelector('input[name="preco_compra"]');
+
+    valorCompraInput.value = valorCompraInput.value.replace(/\./g, "").replace(",", ".");
+    precoCompraInput.value = precoCompraInput.value.replace(/\./g, "").replace(",", ".");
+  });
+</script>

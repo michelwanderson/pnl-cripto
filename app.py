@@ -230,9 +230,10 @@ def refresh():
     # Nada além de redirecionar; o GET da index já chama a API e atualiza
     return redirect(url_for("index"))
 
+
 @app.route("/health")
 def health():
-    return "OK", 200
+    return render_template('health.html'), 200
 
 
     
